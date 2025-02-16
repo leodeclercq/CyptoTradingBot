@@ -1,5 +1,6 @@
 ![CHROME](https://github.com/user-attachments/assets/57fb0cca-d6db-4649-be1d-057e5caffbd8)
 
+HELLO !!!
 
 I A   T R A D E   B O T
 
