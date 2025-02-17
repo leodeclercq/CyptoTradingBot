@@ -2,10 +2,10 @@ HELLO !!!
 
 I A   T R A D E   B O T
 
-![zarov](https://github.com/user-attachments/assets/69c450cf-0cf7-434f-8136-7915b8146f7d)
+![zarov](https://github.com/leodeclercq)
 
+IA TRADE BOT est un bot de trading crypto (BTC/USDT) en Python, gratuit et open source. Il utilise l'API Binance pour récupérer les informations de marché et exécuter les ordres de trading, ainsi que l'API Telegram pour l'interface utilisateur (mise à jour des infos en live 💚). Un script permet de récupérer les données de backtest depuis la date limite disponible sur Binance (modifiable pour d'autres exchanges). La stratégie et son optimisation sont déjà en cours de développement, toute aide est la bienvenue.
 
-leodeclercq/CyptoTradingBot: Crypto Trading Bot
 
 investissement (1% de bénefice/jour = 0,01) : 
 
