@@ -175,10 +175,10 @@ ________________________________________
 📌 script résultats:
 
  
-![Capture d'écran 2025-02-16 141527](https://github.com/user-attachments/assets/1bc3d41f-21b1-4d14-afac-1fdce45bdfa2)
+[![Capture d'écran 2025-02-16 141527](https://github.com/user-attachments/assets/1bc3d41f-21b1-4d14-afac-1fdce45bdfa2)](https://www.binance.com/en/trade/BTC_FDUSD)
 
 
-![Capture d'écran 2025-02-16 140401](https://github.com/user-attachments/assets/2bfacc41-aa25-46f5-9b11-63cc4086eb01)
+[![Capture d'écran 2025-02-16 140401](https://github.com/user-attachments/assets/2bfacc41-aa25-46f5-9b11-63cc4086eb01)](https://www.binance.com/en/trade/BTC_FDUSD)
 
 
 
