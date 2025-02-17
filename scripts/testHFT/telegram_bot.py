@@ -2,8 +2,8 @@
 import requests
 
 # 🔧 Remplace par ton TOKEN de bot et ID de canal
-TELEGRAM_BOT_TOKEN = "8027599831:AAEhXtUFwv4ZQc48YSwk-Uemm4BesZLBVHI"
-TELEGRAM_CHAT_ID = "-1002264309587"
+TELEGRAM_BOT_TOKEN = ""
+TELEGRAM_CHAT_ID = ""
 
 def send_telegram_message(message):
     """Envoie un message à Telegram."""
