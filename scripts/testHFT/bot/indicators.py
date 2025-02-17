@@ -17,9 +17,7 @@ def TEMA(series, period):
     ema2 = EMA(ema1, period)
     ema3 = EMA(ema2, period)
     return 3 * (ema1 - ema2) + ema3
-
-close_window = deque(maxlen=21)  # stockage des 151 dernières valeurs de closes
-# stockage des timestamps associés
+    
 tema_window =deque(maxlen=21)
 
 TEMA_period = 20  # nombre de points pour calculer TEMA20
