@@ -1,7 +1,7 @@
 # Notes spécifique Binance Exchange
 
 Cette page regroupe les problèmes courants et les informations qui sont spécifiques à Binance Exchange.
-
+info API [Notes spécifique API](api.md) .
 ## Exchange configuration
 
 IA TRADE BOT est basée sur [Python Binance library](https://python-binance.readthedocs.io/en/latest/binance.html)  100 cryptocurrency
