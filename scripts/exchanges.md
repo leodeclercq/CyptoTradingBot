@@ -4,8 +4,8 @@ Cette page regroupe les problèmes courants et les informations qui sont spécif
 
 ## Exchange configuration
 
-IA TRADE BOT est basée sur [CCXT library](https://github.com/ccxt/ccxt)  100 cryptocurrency
-exchange markets and trading APIs. The complete up-to-date list can be found in the
+IA TRADE BOT est basée sur [Python Binance library](https://python-binance.readthedocs.io/en/latest/binance.html)  100 cryptocurrency
+exchange markets and trading API. The complete up-to-date list can be found in the
 [CCXT repo homepage](https://github.com/ccxt/ccxt/tree/master/python).
 However, the bot was tested by the development team with only a few exchanges.
 A current list of these can be found in the "Home" section of this documentation.
@@ -19,13 +19,133 @@ Some exchanges require special configuration, which can be found below.
 A exchange configuration for "binance" would look as follows:
 
 ```json
-"exchange": {
-    "name": "binance",
-    "key": "your_exchange_key",
-    "secret": "your_exchange_secret",
-    "ccxt_config": {},
-    "ccxt_async_config": {},
-    // ... 
+def get_binance_server_time():
+    response = requests.get(BASE_URL + "/api/v3/time")
+    server_time = response.json()["serverTime"]
+    local_time = int(time.time() * 1000)
+    print(f"Local time: {local_time}, Binance server time: {server_time}")
+    print(f"Time difference: {server_time - local_time} ms")
+    return server_time
+
+# Générer une signature HMAC-SHA256
+def hashing(query_string):
+    return hmac.new(SECRET.encode(), query_string.encode(), hashlib.sha256).hexdigest()
+
+# Créer une session avec les headers
+session = requests.Session()
+session.headers.update({"Content-Type": "application/json", "X-MBX-APIKEY": KEY})
+
+# Fonction pour envoyer une requête signée
+def send_signed_request(http_method, url_path, payload={}):
+    payload["timestamp"] = get_binance_server_time()  # Synchronisation avec Binance
+    payload["recvWindow"] = 5000  # Augmenter la fenêtre de réception
+    query_string = urlencode(sorted(payload.items()))  # Trier les paramètres
+    signature = hashing(query_string)  # Générer la signature
+    url = f"{BASE_URL}{url_path}?{query_string}&signature={signature}"
+    
+    #print(f"{http_method} {url}")  # Debugging
+    
+    response = session.request(http_method, url)
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        #print("Error:", response.json())  # Debug
+        return response.json()
+
+# Fonction pour envoyer une requête publique (sans signature)
+def send_public_request(url_path, payload={}):
+    query_string = urlencode(payload)
+    url = f"{BASE_URL}{url_path}"
+    if query_string:
+        url += f"?{query_string}"
+    
+    #print("GET", url)  # Debugging
+    response = session.get(url)
+    return response.json()
+
+# Vérifier la synchronisation avec Binance
+get_binance_server_time()
+
+# Récupérer les informations du compte
+response = send_signed_request("GET", "/api/v3/account")
+
+print(response)
+
+def get_btc_balance():
+    account_info = send_signed_request("GET", "/api/v3/account")
+     #print("Réponse de Binance:", account_info)  # 🔥 Debug
+    
+    if "balances" not in account_info:
+        print("⚠️ Erreur: 'balances' n'existe pas dans la réponse !")
+        return 0.0  # Retourne 0 pour éviter le crash
+
+    for balance in account_info["balances"]:
+        if balance["asset"] == "BTC":
+            return float(balance["free"])
+    return 0.0
+
+
+btc_balance = get_btc_balance()
+print(f"Solde BTC disponible : {btc_balance}")
+
+def get_USDT_balance():
+    account_info = send_signed_request("GET", "/api/v3/account")
+    for balance in account_info["balances"]:
+        if balance["asset"] == "USDT":
+            return float(balance["free"])
+    return 0.0
+
+USDT_balance = get_USDT_balance()
+print(f"Solde USDT disponible : {USDT_balance}")
+
+
+def get_price(symbol):
+    """Récupère le prix actuel du marché pour un symbole donné."""
+    response = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}")
+    return float(response.json()["price"])
+price = get_price("BTCUSDT")
+
+print(f"Le prix actuel du BTC en USDT est de {price}")
+
+
+
+def BUYs():
+    USDT_balance = get_USDT_balance()
+    a = round(USDT_balance * 0.9, 4)
+    b = round(a / price, 4)
+    print(b)
+    # Passer un ordre d'achat (market)
+    buy_params = {
+        "symbol": "BTCUSDT",
+        "side": "BUY",
+        "type": "MARKET",
+        "quantity": b,
+    }
+    buy_response = send_signed_request("POST", "/api/v3/order", buy_params)
+    print("Buy order response:", buy_response)
+
+def SELLs():
+    btc_balance = get_btc_balance()
+    # Passer un ordre de vente (market)
+    sell_params = {
+        "symbol": "BTCUSDT",
+        "side": "SELL",
+        "type": "MARKET",
+        "quantity": btc_balance,
+    }
+    sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
+    print("Sell order response:", sell_response)
+    
+# Afficher uniquement les balances non nulles
+def Get_balance_utile():
+    if "balances" in response:
+        balances = response["balances"]
+        for asset in balances:
+            if float(asset["free"]) > 0 or float(asset["locked"]) > 0:
+                print(f"{asset['asset']}: {asset['free']} (free), {asset['locked']} (locked)")
+    else:
+        print("Erreur : Impossible de récupérer les balances.")
 ```
 
 ### Setting rate limits
@@ -45,17 +165,17 @@ In case of problems related to rate-limits (usually DDOS Exceptions in your logs
     },
 ```
 
-This configuration enables kraken, as well as rate-limiting to avoid bans from the exchange.
-`"rateLimit": 3100` defines a wait-event of 3.1s between each call. This can also be completely disabled by setting `"enableRateLimit"` to false.
+ATTENTION pour ne pas se faire ban de Binance pour maker limit.
+`"rateLimit": 3100` 3.1s entre chaque call.
 
 !!! Note
-    Optimal settings for rate-limiting depend on the exchange and the size of the whitelist, so an ideal parameter will vary on many other settings.
-    We try to provide sensible defaults per exchange where possible, if you encounter bans please make sure that `"enableRateLimit"` is enabled and increase the `"rateLimit"` parameter step by step.
+    je n'ai pas encore codé pour être Maker et faire des ordre Limite.
+ `"rateLimit"`  step by step.
 
 ## Binance
 
-!!! Warning "Server location and geo-ip restrictions"
-    Please be aware that Binance restricts API access regarding the server country. The current and non-exhaustive countries blocked are Canada, Malaysia, Netherlands and United States. Please go to [binance terms > b. Eligibility](https://www.binance.com/en/terms) to find up to date list.
+!!! Avertissement "Restrictions de localisation du serveur et géo-ip"
+    Veuillez noter que Binance restreint l'accès à l'API en fonction du pays du serveur. Les pays actuellement bloqués, bien que non exhaustifs, sont le Canada, la Malaisie, les Pays-Bas et les États-Unis. Veuillez consulter les [binance terms > b. Eligibility](https://www.binance.com/en/terms) pour obtenir la liste à jour.
 
 Binance supports [time_in_force](configuration.md#understand-order_time_in_force).
 
