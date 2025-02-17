@@ -122,7 +122,7 @@ print(f"Le prix actuel du BTC en FDUSD est de {price}")
 
 def BUYs():
     global last_buy_price
-    USDT_balance =  round(get_USDT_balance() * 0.99825, 4)
+    USDT_balance =  round(get_USDT_balance() * 0.99925, 5)
     # Passer un ordre d'achat (market)
     buy_params = {
         "symbol": "BTCFDUSD",
@@ -136,14 +136,14 @@ def BUYs():
 
 def SELLs():
     global last_buy_price
-    btc_balance = round(get_btc_balance(), 4)
+    btc_balance = round(get_btc_balance(), 5)
     # Passer un ordre de vente (market)
     sell_params = {
         "symbol": "BTCFDUSD",
         "side": "SELL",
         "type": "LIMIT",
         "quantity": btc_balance,
-        "price": round(last_buy_price * 1.00175, 4),  # Exemple: vente à 1% en dessous du prix actuel
+        "price": round(last_buy_price * 1.00175, 2),  # Exemple: vente à 1% en dessous du prix actuel
         "timeInForce": "GTC"  # Ordre valide jusqu'à annulation
     }
     sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
