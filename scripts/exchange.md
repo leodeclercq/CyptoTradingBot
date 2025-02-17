@@ -10,7 +10,7 @@ exchange markets and trading API.
 
 ### Sample exchange configuration
 
-exchange configuration  "binance" :
+exchange configuration  "binance" (geoTime: Evere) :
 
 ```py
 def get_binance_server_time():
