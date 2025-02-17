@@ -27,7 +27,7 @@ INTERVAL = Client.KLINE_INTERVAL_1SECOND
 BASE_URL = "https://api.binance.com"
 #BASE_URL = "https://testnet.binance.vision"
 
-last_buy_price = 97522.18
+last_buy_price = 97522.18 #si vous avez déjà un ordre limit de vente en cours 
 # Récupérer le temps du serveur Binance
 def get_binance_server_time():
     response = requests.get(BASE_URL + "/api/v3/time")
