@@ -36,8 +36,8 @@ import talib
 # fonction colored, change la couleur du text pour les print()
 from termcolor import colored
 # clés API Binance
-API_KEY = "C37gCN8g7WUfzakDkWWkGCBj63sgaT5tqf8NGj41ZUOz7hyCBFSMtxoVjLAE5ze9"
-API_SECRET = "7wNfvBJx6zYy4h8yUdk5OHl5DcwML6OmW8lFXJzOLvwB4cmgNH23tXOPQ9b395ev"
+API_KEY = ""
+API_SECRET = ""
 # Initialisation du client Binance, instance
 client = Client(API_KEY, API_SECRET)
 # Paramètres globaux
