@@ -15,11 +15,11 @@ from urllib.parse import urlencode
 import requests
 from binance.client import Client
 
-API_KEY = "3qbUh0BQuLBRVHOs0uipwxcJ0TfXe24RwyJ4Y6X8QW3J62nrgAYKRLQt9kzEhZKM"
-API_SECRET = "8MuOJC0D444l45iRQWzsogABddkzC8sK4DvYCrL6K6HgpTWJ6r3tqrO32DxDOdlL"
+API_KEY = ""
+API_SECRET = ""
 # Clés API
-#API_KEY = "C37gCN8g7WUfzakDkWWkGCBj63sgaT5tqf8NGj41ZUOz7hyCBFSMtxoVjLAE5ze9"
-#API_SECRET = "7wNfvBJx6zYy4h8yUdk5OHl5DcwML6OmW8lFXJzOLvwB4cmgNH23tXOPQ9b395ev"
+#API_KEY = ""
+#API_SECRET = ""
 client = Client(API_KEY, API_SECRET)
 SYMBOL = "BTCFDUSD"
 INTERVAL = Client.KLINE_INTERVAL_1SECOND
