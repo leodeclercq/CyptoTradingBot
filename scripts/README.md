@@ -27,7 +27,7 @@ C = 1 361,33€ (1 mois = 31 jours)
 
 ### TEMA : moyenne mobile exponentielle triple sur  périodes, utilisée pour lisser les prix et détecter les tendances plus rapidement
 
-1. Architecture du bot de trading #IA 📊
+#### 1. Architecture du bot de trading #IA 📊
    
 📌 Données en entrée (1/s) :
 
@@ -62,7 +62,7 @@ C = 1 361,33€ (1 mois = 31 jours)
 •	Backtesting sur des données historiques pour optimiser la stratégie.
 ________________________________________
 
-2. Exemples Résultats bot de tranding#IA 🚀
+##### 2. Exemples Résultats bot de tranding#IA 🚀
    
 📌 EXEMPLE ACHAT :
 
@@ -160,7 +160,7 @@ ________________________________________
 
 ________________________________________
 
-3. Optimisations et prochaines étapes 📈📊 🚀
+####### 3. Optimisations et prochaines étapes 📈📊 🚀
    
 📌 To Do :
 
@@ -168,7 +168,7 @@ ________________________________________
 
 ________________________________________
 
-4. Bot Simple 🚀
+####### 4. Bot Simple 🚀
    
 📌 stratégie (1/m) :
 
