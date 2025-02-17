@@ -1,6 +1,6 @@
 HELLO !!!
 
-I A   T R A D E   B O T
+# I A   T R A D E   B O T
 
 [![zarov](https://github.com/user-attachments/assets/1d904d1b-2956-4002-a799-819b797bd1e7)](https://github.com/leodeclercq)
 
@@ -23,9 +23,9 @@ Si 1000€ = C(0) C = 37 783,43€ (1 an = 365 jours)
 
 C = 1 361,33€ (1 mois = 31 jours)
 
-Close : dernier prix d'un actif à la fin d'une bougie (1 /s, 1/m).
+## Close : dernier prix d'un actif à la fin d'une bougie (1 /s, 1/m).
 
-TEMA : moyenne mobile exponentielle triple sur  périodes, utilisée pour lisser les prix et détecter les tendances plus rapidement
+### TEMA : moyenne mobile exponentielle triple sur  périodes, utilisée pour lisser les prix et détecter les tendances plus rapidement
 
 1. Architecture du bot de trading #IA 📊
    
