@@ -1,9 +1,9 @@
-![zarov](https://github.com/user-attachments/assets/69c450cf-0cf7-434f-8136-7915b8146f7d)
-
-
 HELLO !!!
 
 I A   T R A D E   B O T
+
+![zarov](https://github.com/user-attachments/assets/69c450cf-0cf7-434f-8136-7915b8146f7d)
+
 
 leodeclercq/CyptoTradingBot: Crypto Trading Bot
 
