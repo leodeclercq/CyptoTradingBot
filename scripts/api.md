@@ -123,3 +123,20 @@ sell_params = {
 sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
    print("Sell order response:", sell_response)
 ```
+vente limit
+```py
+def SELLs():
+    global last_buy_price
+    btc_balance = round(get_btc_balance(), 4)
+    # Passer un ordre de vente (market)
+    sell_params = {
+        "symbol": "BTCFDUSD",
+        "side": "SELL",
+        "type": "LIMIT",
+        "quantity": btc_balance,
+        "price": round(last_buy_price * 1.00175, 4),  # Exemple: vente à 1% en dessous du prix actuel
+        "timeInForce": "GTC"  # Ordre valide jusqu'à annulation
+    }
+    sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
+    print("Sell order response:", sell_response)
+```
