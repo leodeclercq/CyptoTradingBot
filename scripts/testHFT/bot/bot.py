@@ -140,7 +140,7 @@ def BUYs():
 
 def SELLs():
     global last_buy_price
-    btc_balance = round(get_btc_balance(), 5)
+    btc_balance = Decimal(get_USDT_balance()).quantize(Decimal('0.00001'), rounding=ROUND_FLOOR)
     # Passer un ordre de vente (market)
     sell_params = {
         "symbol": "BTCFDUSD",
@@ -207,16 +207,15 @@ def get_historical_data():
     return df
 
 def execute_trade(action, data):
-    balance_usdt = get_USDT_balance()
-    balance_btc = get_btc_balance()
     # Appel de la fonction selon l'action
     if action == "BUY" and balance_usdt >= 8:
         BUYs()
-        SELLs()
         """Exécute une action d'achat ou de vente et envoie à Telegram."""
+        
         message = f"🔥 *SIGNAL DÉTECTÉ* : {action} 📢\n" \
             f"📅 *Temps* : {data['time']}\n" \
               f"💰 *Prix* : {data['close']:.2f}\n" \
+              f"💰 *Last Buy Price* : {last_buy_price:.2f}\n" \
               f"📈 *pente* : {data['slope']:.2f}\n" \
               f"📊 *TEMA20* : {data['TEMA20']:.2f}\n" \
               f"📊 *TEMA50* : {data['TEMA50']:.2f}\n" \
@@ -225,12 +224,14 @@ def execute_trade(action, data):
     
         print(message)  # Affichage en console
         send_telegram_message(message)  # 🔥 Envoi sur Telegram
+        SELLs()
     # Appel de la fonction selon l'action
     elif action == "SELL"and balance_btc >= 0.000001:
         """Exécute une action d'achat ou de vente et envoie à Telegram."""
         message = f"🔥 *SIGNAL DÉTECTÉ* : {action} 📢\n" \
               f"📅 *Temps* : {data['time']}\n" \
               f"💰 *Prix* : {data['close']:.2f}\n" \
+              f"💰 *Last Buy Price* : {last_buy_price:.2f}\n" \
               f"📈 *pente* : {data['slope']:.2f}\n" \
               f"📊 *TEMA20* : {data['TEMA20']:.2f}\n" \
               f"📊 *TEMA50* : {data['TEMA50']:.2f}\n" \
