@@ -8,13 +8,9 @@ IA TRADE BOT est basée sur [Python Binance library](https://python-binance.read
 exchange markets and trading API.
 
 
-Feel free to test other exchanges and submit your feedback or PR to improve the bot or confirm exchanges that work flawlessly..
-
-Some exchanges require special configuration, which can be found below.
-
 ### Sample exchange configuration
 
-A exchange configuration for "binance" would look as follows:
+exchange configuration  "binance" :
 
 ```py
 def get_binance_server_time():
