@@ -5,10 +5,8 @@ Cette page regroupe les problèmes courants et les informations qui sont spécif
 ## Exchange configuration
 
 IA TRADE BOT est basée sur [Python Binance library](https://python-binance.readthedocs.io/en/latest/binance.html)  100 cryptocurrency
-exchange markets and trading API. The complete up-to-date list can be found in the
-[CCXT repo homepage](https://github.com/ccxt/ccxt/tree/master/python).
-However, the bot was tested by the development team with only a few exchanges.
-A current list of these can be found in the "Home" section of this documentation.
+exchange markets and trading API.
+
 
 Feel free to test other exchanges and submit your feedback or PR to improve the bot or confirm exchanges that work flawlessly..
 
@@ -18,7 +16,7 @@ Some exchanges require special configuration, which can be found below.
 
 A exchange configuration for "binance" would look as follows:
 
-```json
+```py
 def get_binance_server_time():
     response = requests.get(BASE_URL + "/api/v3/time")
     server_time = response.json()["serverTime"]
