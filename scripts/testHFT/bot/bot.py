@@ -14,6 +14,9 @@ import requests
 from urllib.parse import urlencode
 import requests
 from binance.client import Client
+from decimal import Decimal, ROUND_FLOOR
+import math
+
 
 API_KEY = ""
 API_SECRET = ""
@@ -122,7 +125,7 @@ print(f"Le prix actuel du BTC en FDUSD est de {price}")
 
 def BUYs():
     global last_buy_price
-    USDT_balance =  round(get_USDT_balance() * 0.99925, 5)
+    USDT_balance = Decimal(get_USDT_balance() * 0.99925).quantize(Decimal('0.00001'), rounding=ROUND_FLOOR)
     # Passer un ordre d'achat (market)
     buy_params = {
         "symbol": "BTCFDUSD",
@@ -130,9 +133,10 @@ def BUYs():
         "type": "MARKET",
         "quantity": USDT_balance,
     }
-    last_buy_price = get_price('BTCFDUSD')
     buy_response = send_signed_request("POST", "/api/v3/order", buy_params)
+    last_buy_price = get_price('BTCFDUSD')
     print("Buy order response:", buy_response)
+    
 
 def SELLs():
     global last_buy_price
@@ -201,66 +205,6 @@ def get_historical_data():
             print("✅ Historique récupéré et sauvegardé dans la base de données.")
     
     return df
-
-# Fonction pour récupérer les données de la base de données SQLite
-def backtest():
-    df = get_historical_data()  # Récupère toutes les bougies historiques
-
-    balance_usdt = 1000
-    balance_btc = 0
-    history = []
-
-    # Parcourir toutes les bougies de l'historique
-    for i in range(1, len(df)):  # On commence à 1 pour avoir i-1
-        last_row = df.iloc[i - 1]
-        current_row = df.iloc[i]
-
-        # Détermination du signal
-        signal = None  
-        
-        # Récupérer le prix actuel (par exemple, le prix de clôture)
-        current_price = current_row['close']
-    
-    
-        # Signal d'achat basé sur RSI(6), RSI(12), RSI(24) et croisement de TEMA(7), TEMA(25), TEMA(99)
-        if (last_row['TEMA20'] < last_row['TEMA50'] ):
-            signal = "BUY"
-            #print(f"Achat exécuté à {current_price}")
-            
-    
-        # Signal de vente basé sur RSI(6), RSI(12), RSI(24) et croisement de TEMA(7), TEMA(25), TEMA(99)
-        if (last_row['TEMA20'] > last_row['TEMA50']  ):
-            # Vérifier que le prix actuel est supérieur au dernier prix d'achat
-            signal = "SELL"
-            #print(f"Vente exécutée à {current_price}")
-
-        if signal is None:
-            continue
-        timestamp = current_row['time']
-
-        # Achat si le signal est "BUY"
-        if signal == "BUY" and balance_usdt > 100 :
-            amount_to_buy = balance_usdt / current_price
-            balance_btc = amount_to_buy
-            balance_usdt = 0
-            history.append(f"{timestamp} - BUY at {current_price} BTC")
-            #print(df.iloc[i - 1 : i + 1])  # Afficher les 2 dernières lignes 
-
-        # Vente si le signal est "SELL"
-        if signal == "SELL" and balance_btc > 0.0001 :
-            amount_to_sell = balance_btc * current_price
-            balance_usdt = amount_to_sell
-            balance_btc = 0
-            history.append(f"{timestamp} - SELL at {current_price} BTC")
-            #print(df.iloc[i - 1 : i + 1])  # Afficher les 2 dernières lignes 
-
-        #print(f"{timestamp} | FDUSD: {balance_usdt:.2f}, BTC: {balance_btc:.6f}, Buy Price: {buy_price if buy_price is not None else 'N/A'}, Sell Price: {sell_price if sell_price is not None else 'N/A'}, Signal: {signal}")
-
-    print("\nBacktest terminé")
-    print(f"Solde final FDUSD: {balance_usdt:.2f}, Solde final BTC: {balance_btc:.6f}")
-    #print("Historique des transactions:")
-    #for transaction in history:
-        #print(transaction)
 
 def execute_trade(action, data):
     balance_usdt = get_USDT_balance()
