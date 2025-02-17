@@ -2,7 +2,7 @@ HELLO !!!
 
 I A   T R A D E   B O T
 
-![zarov](https://github.com/leodeclercq)
+[![zarov](https://github.com/user-attachments/assets/1d904d1b-2956-4002-a799-819b797bd1e7)](https://github.com/leodeclercq)
 
 IA TRADE BOT est un bot de trading crypto (BTC/USDT) en Python, gratuit et open source. Il utilise l'API Binance pour récupérer les informations de marché et exécuter les ordres de trading, ainsi que l'API Telegram pour l'interface utilisateur (mise à jour des infos en live 💚). Un script permet de récupérer les données de backtest depuis la date limite disponible sur Binance (modifiable pour d'autres exchanges). La stratégie et son optimisation sont déjà en cours de développement, toute aide est la bienvenue.
 
@@ -87,7 +87,7 @@ ________________________________________
 [Sun Feb 16 13:20:32 2025] ❤️ n  (pente: 0.509620):( (TEMA20: 97236.14 >= TEMA50: 97235.97)💰: 97236.520000
 
 
-![Capture d'écran 2025-02-16 132744](https://github.com/user-attachments/assets/1299910d-5add-42fc-865c-06c460aa51fc)
+[![Capture d'écran 2025-02-16 132744](https://github.com/user-attachments/assets/1299910d-5add-42fc-865c-06c460aa51fc)](https://www.binance.com/en/trade/BTC_FDUSD)
 
 📌 EXEMPLE VENTE :
 
@@ -143,7 +143,7 @@ ________________________________________
 
 [Sun Feb 16 13:23:29 2025] 💚 U (pente: -0.135153):) (TEMA20: 97253.19 < TEMA50: 97253.48) 💰: 97252.010000
 
-![Capture d'écran 2025-02-16 132827](https://github.com/user-attachments/assets/e5757784-49d7-4c53-952d-a52f763c3156)
+[![Capture d'écran 2025-02-16 132827](https://github.com/user-attachments/assets/e5757784-49d7-4c53-952d-a52f763c3156)](https://www.binance.com/en/trade/BTC_FDUSD)
 
  
 
@@ -151,7 +151,7 @@ ________________________________________
 
 •	Backtesting sur des données historiques pour optimiser la stratégie.
 
-![Capture d'écran 2025-02-16 132711](https://github.com/user-attachments/assets/3d12566a-1aad-4b03-bd37-90bed44266a7)
+[![Capture d'écran 2025-02-16 132711](https://github.com/user-attachments/assets/3d12566a-1aad-4b03-bd37-90bed44266a7)](https://www.binance.com/en/trade/BTC_FDUSD)
 
 
 ________________________________________
@@ -182,7 +182,7 @@ ________________________________________
 
 
 
-![Capture d'écran 2025-02-16 140415](https://github.com/user-attachments/assets/267a5178-3a6c-45eb-99df-7a3eb5ea1d5a)
+[![Capture d'écran 2025-02-16 140415](https://github.com/user-attachments/assets/267a5178-3a6c-45eb-99df-7a3eb5ea1d5a)](https://www.binance.com/en/trade/BTC_FDUSD)
 
  
  
