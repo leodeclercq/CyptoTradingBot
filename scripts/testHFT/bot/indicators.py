@@ -5,35 +5,6 @@ import ta
 # Calcul du RSI
 #  calcul scientifique, tableau, db etc
 import numpy as np
-def calculate_rsi_14(data, window=14):
-    delta = data.diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
-    loss = loss.replace(0, 1e-10)  # Empèche la division par zéro
-    rs = gain / loss
-    rsi_14 = 100 - (100 / (1 + rs))
-    return rsi_14
-
-def calculate_rsi_50(data, window=50):
-    delta = data.diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
-    loss = loss.replace(0, 1e-10)  # Empèche la division par zéro
-    rs = gain / loss
-    rsi_50 = 100 - (100 / (1 + rs))
-    return rsi_50
-
-# Fonction pour calculer une moyenne mobile simple (SMA)
-def SMA(series, period):
-    return series.rolling(window=period).mean()
-
-# Fonction pour calculer MA100
-def calculate_MA100(data):
-    return SMA(data, 100)
-
-# Fonction pour calculer MA200
-def calculate_MA200(data):
-    return SMA(data, 200)
 
 
 # Calcul de l'EMA
