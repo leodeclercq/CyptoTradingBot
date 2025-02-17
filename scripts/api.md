@@ -134,7 +134,7 @@ def SELLs():
         "side": "SELL",
         "type": "LIMIT",
         "quantity": btc_balance,
-        "price": round(last_buy_price * 1.00175, 4),  # Exemple: vente à 1% en dessous du prix actuel
+        "price": round(last_buy_price * 1.00175, 4),  # Exemple: vente à 1% en dessus du dernier prix plus frais
         "timeInForce": "GTC"  # Ordre valide jusqu'à annulation
     }
     sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
