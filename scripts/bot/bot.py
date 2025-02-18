@@ -22,16 +22,17 @@ DB_FILE = ""
 
 API_KEY = ""
 API_SECRET = ""
-# Clés API
-#API_KEY = ""
-#API_SECRET = ""
+
 client = Client(API_KEY, API_SECRET)
 SYMBOL = "BTCFDUSD"
 INTERVAL = Client.KLINE_INTERVAL_1SECOND
+
 # URL Binance
 BASE_URL = "https://api.binance.com"
 #BASE_URL = "https://testnet.binance.vision"
+
 order_id = 0
+
 # Récupérer le temps du serveur Binance
 def get_binance_server_time():
     response = requests.get(BASE_URL + "/api/v3/time")
@@ -122,7 +123,7 @@ price = get_price("BTCFDUSD")
 
 print(f"Le prix actuel du BTC en FDUSD est de {price}")
 
-last_buy_price = get_price("BTCFDUSD")
+last_buy_price = get_price("BTCFDUSD")# ou comme vous le souhaitez ou vous pouver directement passer depuis binance par vous même un ordre limit de vente si vous n'avez que des BTC
 def BUYs():
     global last_buy_price
     amount = (get_USDT_balance() - (get_USDT_balance() * 0.00075) - 0.000009)
