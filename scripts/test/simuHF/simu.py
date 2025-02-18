@@ -36,7 +36,7 @@ import talib
 # fonction colored, change la couleur du text pour les print()
 from termcolor import colored
 # clés API Binance
-API_KEY = ""
+API_KEY = "
 API_SECRET = ""
 # Initialisation du client Binance, instance
 client = Client(API_KEY, API_SECRET)
@@ -49,12 +49,12 @@ tema_window =deque(maxlen=151)   # stockage des TEMA20 associés
 TEMA_period = 20  # nombre de points pour calculer TEMA20
 slope_window = 3  # nombre de points pour calculer la pente
 # Variable simualtion
-usdt_balance = 100.000000  # Balance initiale en USDT
+usdt_balance = 1000.000000  # Balance initiale en USDT
 btc_balance = 0.0000000  # Balance initiale en BTC
-last_buy_price = 0.0000000
+last_buy_price = 98000.00
 # Seuils
 bearish_slope_threshold = -0.084  # seuil pour détecter une pente baissière forte  (-0.01, -0.087)
-bullish_slope_threshold = 0.06  # seuil pour détecter une pente haussière forte (0.23, 0.13)
+bullish_slope_threshold = 0.16  # seuil pour détecter une pente haussière forte (0.23, 0.13)
 # On considère soit "en position" (buy) soit "hors position"
 current_position = "none"
 # Calcul de la TEMA avec TA-Lib. Renvoie la dernière valeur calculée.
@@ -106,28 +106,29 @@ def process_message(msg):
                 slope = compute_slope(list(tema_window), window=slope_window)
                 # valeurs de TEMA20 pour détecter extrema
                 recent_data = list(tema_window)[-11:]
-                recent_max = max(recent_data)
+                recent_datas = list(data_window)[-11:]
+                last_data = list(data_window)[-1]
                 recent_min = min(recent_data)
+                mins = min(recent_datas)
                 # Vente (si en position et conditions remplies)
-                if current_position == "buy"  and btc_balance >= 0.0001 and price >= last_buy_price * 1.0015: #and price >= last_buy_price * 1.001
+                if current_position == "buy"  and btc_balance >= 0.0001 and price >= last_buy_price * 1.001: #and price >= last_buy_price * 1.001
                     usdt_balance += btc_balance   * price  # Conversion de BTC en USDT
                     btc_balance = 0.000000  # Réinitialisation après vente
-                    last_buy_price = 0.000000  # Réinitialisation du prix d'achat
                     print(f"[{time.ctime(event_time/1000)}] 🔥VENTE à 💰{price:.6f} , 🪙: {btc_balance:.6f}, 💲 : {usdt_balance:.6f},prix d'achat {last_buy_price:.2f}")
                     current_position = "none"
                 # Achat (si hors position et conditions remplies)⚠️
-                if current_position == "none" and tema20 >= recent_min * 1.0000001 and usdt_balance >= 10:
-                    if slope is not None and slope > bullish_slope_threshold and tema20 < (tema50 - 0.8):
+                if current_position == "none" and tema20 >= recent_min * 1.00002 and last_data >= mins * 1.00015   and usdt_balance >= 10.00 and price <= last_buy_price * 0.9995 :
+                    if slope is not None and slope > bullish_slope_threshold and tema20 < (tema50 - 0.4):
                         btc_balance = (usdt_balance * 0.99925)  / price  # Achat du maximum possible
                         usdt_balance = 0.000000  # Tout l'USDT est converti en BTC
                         last_buy_price = price  # Enregistrer le prix d'achat
                         current_position = "buy"
                         print(f"[{time.ctime(event_time/1000)}] 🔥ACHAT à 💰{price:.6f} (pente: {colorize_slope(slope)} ), 🪙: {btc_balance:.6f}, 💲 : 0.00")
-                # Affichage de l'état de la parabole
-                if tema20 < tema50:
-                    print(f"[{time.ctime(event_time/1000)}] 💚 U (pente: {colorize_slope(slope)}):) (TEMA20: {f'\033[94m{tema20:.2f}\033[0m'} < TEMA50: {f'\033[93m{tema50:.2f}\033[0m'}) 💰: {price:.6f}")
-                else:
-                    print(f"[{time.ctime(event_time/1000)}] ❤️ n  (pente: {colorize_slope(slope)}):( (TEMA20: {f'\033[94m{tema20:.2f}\033[0m'} >= TEMA50: {f'\033[93m{tema50:.2f}\033[0m'})💰: {price:.6f}")
+                 #Affichage de l'état de la parabole
+                #if tema20 < tema50:
+                    #print(f"[{time.ctime(event_time/1000)}] 💚 U (pente: {colorize_slope(slope)}):) (TEMA20: {f'\033[94m{tema20:.2f}\033[0m'} < TEMA50: {f'\033[93m{tema50:.2f}\033[0m'}) 💰: {price:.6f}")
+                #else:
+                    #print(f"[{time.ctime(event_time/1000)}] ❤️ n  (pente: {colorize_slope(slope)}):( (TEMA20: {f'\033[94m{tema20:.2f}\033[0m'} >= TEMA50: {f'\033[93m{tema50:.2f}\033[0m'})💰: {price:.6f}")
 # fonction principale 'main()' qui démarre le processus de gestion du websocket
 def main():
     # Boucle infinie pour gérer la connexion WebSocket et les erreurs
