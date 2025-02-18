@@ -1,4 +1,3 @@
-
 import requests
 
 # 🔧 Remplace par ton TOKEN de bot et ID de canal
