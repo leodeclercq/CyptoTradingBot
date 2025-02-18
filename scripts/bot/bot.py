@@ -329,7 +329,7 @@ def run_bot():
             else:
                 live_mode = True  # Activer la détection de signaux pour la prochaine itération
 
-            time.sleep(1)  # Attendre 1 minute avant la prochaine itération
+            time.sleep(1)  # Attendre 1 sec avant la prochaine itération
 
         except Exception as e:
             print(f"⚠️ Erreur : {e}")
