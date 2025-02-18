@@ -32,7 +32,7 @@ INTERVAL = Client.KLINE_INTERVAL_1SECOND
 BASE_URL = "https://api.binance.com"
 #BASE_URL = "https://testnet.binance.vision"
 current_position = None  # Peut être "BUY", "SELL" ou None
-last_buy_price = 96300.00 #si vous avez déjà un ordre limit de vente en cours
+last_buy_price = 96300.00 #si vous avez DES BTC POUR INITAIALIZE sinon peu importe elle sera changé à chaque BUYs
 order_id = 0
 # Récupérer le temps du serveur Binance
 def get_binance_server_time():
