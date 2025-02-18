@@ -158,7 +158,7 @@ Si le montant de `BNB` disponible est insuffisant pour couvrir les frais de tran
 
 ### Binance sites
 
-Binance has been split into 2, and users must use the correct ccxt exchange ID for their exchange, otherwise API keys are not recognized.
+utilisez le .com.
 
 * [binance.com](https://www.binance.com/) - International users. Use exchange id: `binance`.
 
