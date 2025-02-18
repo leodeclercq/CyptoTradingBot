@@ -18,7 +18,7 @@ import math
 import sqlite3
 import pandas as pd
 
-DB_FILE = "C:\\....\\.....db"
+DB_FILE = ""
 
 API_KEY = ""
 API_SECRET = ""
@@ -31,8 +31,6 @@ INTERVAL = Client.KLINE_INTERVAL_1SECOND
 # URL Binance
 BASE_URL = "https://api.binance.com"
 #BASE_URL = "https://testnet.binance.vision"
-current_position = None  # Peut être "BUY", "SELL" ou None
-last_buy_price = 96300.00 #si vous avez DES BTC POUR INITAIALIZE sinon peu importe elle sera changé à chaque BUYs
 order_id = 0
 # Récupérer le temps du serveur Binance
 def get_binance_server_time():
@@ -124,7 +122,7 @@ price = get_price("BTCFDUSD")
 
 print(f"Le prix actuel du BTC en FDUSD est de {price}")
 
-
+last_buy_price = get_price("BTCFDUSD")
 def BUYs():
     global last_buy_price
     amount = (get_USDT_balance() - (get_USDT_balance() * 0.00075) - 0.000009)
@@ -258,7 +256,7 @@ def execute_trade(action, data):
     balance_usdt = get_USDT_balance()
     balance_btc = get_btc_balance()
     # Appel de la fonction selon l'action
-    if action == "BUY" and balance_usdt >= 8.000001:
+    if action == "BUY" and balance_usdt >= 7.000001:
         BUYs()
         """Exécute une action d'achat ou de vente et envoie à Telegram."""
         
