@@ -142,13 +142,6 @@ def Get_balance_utile():
         print("Erreur : Impossible de récupérer les balances.")
 ```
 
-ATTENTION pour ne pas se faire ban de Binance pour maker limit.
-`"rateLimit": 3100` 3.1s entre chaque call.
-
-!!! Note
-    je n'ai pas encore codé pour être Maker et faire des ordre Limite.
- `"rateLimit"`  step by step.
-
 ## Binance
 
 !!! Avertissement "Restrictions de localisation du serveur et géo-ip"
