@@ -103,8 +103,8 @@ achat
 ```py
 def BUYs():
     global last_buy_price
-    amount = (get_USDT_balance() - (get_USDT_balance() * 0.00075) - 0.000009)
-    precision = 5
+    amount = (get_USDT_balance() - (get_USDT_balance() * 0.00075) - 0.00009)
+    precision = 4
     amt_str = "{:0.0{}f}".format(amount, precision)
     # Passer un ordre d'achat (market)
     buy_params = {
