@@ -1,6 +1,6 @@
 import sqlite3
 
-DB_FILE = "C:\\zarov\\trading_data.db"
+DB_FILE = "C:\\...\\....db"
 
 def init_db():
     """Initialise la base de données avec la table des prix et indicateurs."""
