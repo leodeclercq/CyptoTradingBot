@@ -1,5 +1,3 @@
-
-import time
 import sqlite3
 import pandas as pd
 from binance.client import Client
@@ -8,6 +6,7 @@ from indicators import calculate_indicators
 from strategy import check_signal
 from telegram_bot import send_telegram_message  # 🔥 Import du module Telegram
 import hmac
+from datetime import datetime, timedelta
 import time
 import hashlib
 import requests
@@ -16,21 +15,23 @@ import requests
 from binance.client import Client
 from decimal import Decimal, ROUND_FLOOR
 import math
+import sqlite3
+import pandas as pd
 
+DB_FILE = "C:\\...\\....db"
 
 API_KEY = ""
 API_SECRET = ""
-# Clés API
-#API_KEY = ""
-#API_SECRET = ""
 client = Client(API_KEY, API_SECRET)
 SYMBOL = "BTCFDUSD"
 INTERVAL = Client.KLINE_INTERVAL_1SECOND
 # URL Binance
 BASE_URL = "https://api.binance.com"
 #BASE_URL = "https://testnet.binance.vision"
-
-last_buy_price = 97522.18 #si vous avez déjà un ordre limit de vente en cours 
+current_position = None  # Peut être "BUY", "SELL" ou None
+last_buy_price = 0 #si vous avez déjà un ordre limit de vente en cours
+order_id = 0
+action ="SELL"
 # Récupérer le temps du serveur Binance
 def get_binance_server_time():
     response = requests.get(BASE_URL + "/api/v3/time")
@@ -87,7 +88,7 @@ print(response)
 
 def get_btc_balance():
     account_info = send_signed_request("GET", "/api/v3/account")
-     #print("Réponse de Binance:", account_info)  # 🔥 Debug
+    #print("Réponse de Binance:", account_info)  # 🔥 Debug
     
     if "balances" not in account_info:
         print("⚠️ Erreur: 'balances' n'existe pas dans la réponse !")
@@ -122,7 +123,6 @@ price = get_price("BTCFDUSD")
 print(f"Le prix actuel du BTC en FDUSD est de {price}")
 
 
-
 def BUYs():
     global last_buy_price
     USDT_balance = Decimal(get_USDT_balance() * 0.99925).quantize(Decimal('0.00001'), rounding=ROUND_FLOOR)
@@ -139,8 +139,12 @@ def BUYs():
     
 
 def SELLs():
-    global last_buy_price
+    global last_buy_price, order_id, action
     btc_balance = Decimal(get_USDT_balance()).quantize(Decimal('0.00001'), rounding=ROUND_FLOOR)
+    # Vérification de la balance avant de passer un ordre
+    if btc_balance <= 0.000001:
+        print("❌ Pas assez de BTC pour vendre.")
+        return
     # Passer un ordre de vente (market)
     sell_params = {
         "symbol": "BTCFDUSD",
@@ -151,9 +155,41 @@ def SELLs():
         "timeInForce": "GTC"  # Ordre valide jusqu'à annulation
     }
     sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
-    print("Sell order response:", sell_response)
+    if sell_response and "orderId" in sell_response:
+        order_id = sell_response["orderId"]
+        print(f"📌 Ordre LIMIT SELL {order_id} placé à {sell_params['price']} FDUSD")
+        action = "SELL"
+    else:
+        print("❌ Échec de la création de l'ordre SELL.")
     
+def check_order_status(df):
+    global action
+    global order_id
+    """
+    Récupère la liste des ordres ouverts pour un symbole donné.
+    """
+    params = {
+        "symbol": "BTCFDUSD"
+    }
+    response = send_signed_request("GET", "/api/v3/openOrders", params)
+
+    if response and isinstance(response, list):
+        if len(response) == 0:
+            print(f"🔴 Aucun ordre ouvert pour {"BTCFDUSD"}.")
+            check_signal(df, execute_trade)
+        else:
+            print(f"🟢 Ordres ouverts pour {"BTCFDUSD"}:")
+            for order in response:
+                print(f"Order ID: {order['orderId']}, Price: {order['price']}, Quantity: {order['origQty']}, Status: {order['status']}")
+                if  order['status'] and order['status'] == "NEW":
+                    print(f"📊 Statut de l'ordre {order_id}: {order['status']}")
+                    print(f"✅ Ordre ouvert à {order['price']}, attente.... {get_price("BTCFDUSD")}")
+                elif  order['status'] and order['status'] == "FILLED":
+                    print(f"✅ Ordre exécuté à {order['price']}, déclenchement de la vente.")
+    else:
+        print("⚠️ Erreur lors de la récupération des ordres ouverts.")
 # Afficher uniquement les balances non nulles
+        
 def Get_balance_utile():
     if "balances" in response:
         balances = response["balances"]
@@ -163,12 +199,9 @@ def Get_balance_utile():
     else:
         print("Erreur : Impossible de récupérer les balances.")
 
-import sqlite3
-import pandas as pd
-
-DB_FILE = "C:\\zarov\\trading_data.db"
 
 def get_historical_data():
+    
     """Vérifie si les données historiques existent déjà, sinon les récupère depuis Binance."""
     print("🔄 Vérification des données historiques...")
 
@@ -188,7 +221,10 @@ def get_historical_data():
         else:
             print("⚠️ Aucune donnée historique trouvée. Récupération des données depuis Binance...")
             # Récupérer les données historiques depuis Binance si elles n'existent pas
-            klines = client.get_historical_klines(SYMBOL, INTERVAL, "17  Feb, 2025")
+            # Calcul du timestamp de la dernière heure
+            end_time = int(time.time() * 1000)  # Timestamp actuel en ms
+            start_time = end_time - (60 * 60 * 1000)  # 1 heure en arrière
+            klines = client.get_historical_klines(SYMBOL, INTERVAL, start_time)
             df = pd.DataFrame(klines, columns=['time', 'open', 'high', 'low', 'close', 'volume', 'close_time',
                                             'quote_asset_volume', 'num_trades', 'taker_buy_base', 'taker_buy_quote', 'ignore'])
             
@@ -206,9 +242,11 @@ def get_historical_data():
     
     return df
 
+
+
 def execute_trade(action, data):
     # Appel de la fonction selon l'action
-    if action == "BUY" and balance_usdt >= 8:
+    if action == "BUY" and balance_usdt >= 8.000001:
         BUYs()
         """Exécute une action d'achat ou de vente et envoie à Telegram."""
         
@@ -225,23 +263,6 @@ def execute_trade(action, data):
         print(message)  # Affichage en console
         send_telegram_message(message)  # 🔥 Envoi sur Telegram
         SELLs()
-    # Appel de la fonction selon l'action
-    elif action == "SELL"and balance_btc >= 0.000001:
-        """Exécute une action d'achat ou de vente et envoie à Telegram."""
-        message = f"🔥 *SIGNAL DÉTECTÉ* : {action} 📢\n" \
-              f"📅 *Temps* : {data['time']}\n" \
-              f"💰 *Prix* : {data['close']:.2f}\n" \
-              f"💰 *Last Buy Price* : {last_buy_price:.2f}\n" \
-              f"📈 *pente* : {data['slope']:.2f}\n" \
-              f"📊 *TEMA20* : {data['TEMA20']:.2f}\n" \
-              f"📊 *TEMA50* : {data['TEMA50']:.2f}\n" \
-              f"💲 *FAUX Solde FDUSD* : {get_USDT_balance()}\n"  \
-              f"🪙 *FAUX Solde BTC* : {get_btc_balance()}"
-    
-        print(message)  # Affichage en console
-        send_telegram_message(message)  # 🔥 Envoi sur Telegram
-
-    # Appel de la fonction selon l'action
 
 def run_bot():
     """Boucle principale du bot, détecte les signaux UNIQUEMENT en live."""
@@ -292,7 +313,8 @@ def run_bot():
 
 
             if live_mode:  # Ne détecter les signaux qu'en live
-                check_signal(df, execute_trade)
+                check_order_status(df)
+                
             else:
                 live_mode = True  # Activer la détection de signaux pour la prochaine itération
 
