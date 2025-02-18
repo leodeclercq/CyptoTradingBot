@@ -12,11 +12,8 @@ import hashlib
 import requests
 from urllib.parse import urlencode
 import requests
-from binance.client import Client
 from decimal import Decimal, ROUND_FLOOR
 import math
-import sqlite3
-import pandas as pd
 
 DB_FILE = ""
 
