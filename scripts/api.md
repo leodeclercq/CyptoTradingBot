@@ -101,15 +101,22 @@ else:
 ## Ordre du marché Api Binance Manager
 achat
 ```py
-# Passer un ordre d'achat (market)
-buy_params = {
-    "symbol": "BTCUSDT",
-    "side": "BUY",
-    "type": "MARKET",
-    "quantity": 0.0001,
-}
-buy_response = send_signed_request("POST", "/api/v3/order", buy_params)
-print("Buy order response:", buy_response)
+def BUYs():
+    global last_buy_price
+    amount = (get_USDT_balance() - (get_USDT_balance() * 0.00075) - 0.000009)
+    precision = 5
+    amt_str = "{:0.0{}f}".format(amount, precision)
+    # Passer un ordre d'achat (market)
+    buy_params = {
+        "symbol": "BTCFDUSD",
+        "side": "BUY",
+        "type": "MARKET",
+        "quantity": amt_str,
+    }
+    buy_response = send_signed_request("POST", "/api/v3/order", buy_params)
+    last_buy_price = get_price('BTCFDUSD')
+    print("Buy order response:", buy_response)
+    
 ```
 vente
 ```py
@@ -126,17 +133,31 @@ sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
 vente limit
 ```py
 def SELLs():
-    global last_buy_price
-    btc_balance = round(get_btc_balance(), 4)
-    # Passer un ordre de vente (market)
+    c = last_buy_price
+    amount = (get_btc_balance()-0.000009)
+    precision = 5
+    precisions = 2
+    qtt  = c * 1.00175
+    # Formater la quantité à vendre avec la précision correcte
+    amt_str = "{:0.0{}f}".format(amount, precision)
+    print(amt_str)
+    amt_strs = "{:0.0{}f}".format(qtt, precisions)
+    # Vérification de la balance avant de passer un ordre
+    if amount <= 0:
+        print("❌ Solde insuffisant pour effectuer la vente.")
+        return
+
+    # Passer un ordre de vente (limit)
     sell_params = {
-        "symbol": "BTCFDUSD",
+        "symbol": "BTCFDUSD",  # Utilisation de la paire BTCFDUSD
         "side": "SELL",
         "type": "LIMIT",
-        "quantity": btc_balance,
-        "price": round(last_buy_price * 1.00175, 4),  # Exemple: vente à 1% en dessus du dernier prix plus frais
+        "quantity": amt_str,
+        "price": amt_strs,  # Exemple : vente à 0.175% au-dessus du prix actuel
         "timeInForce": "GTC"  # Ordre valide jusqu'à annulation
     }
+
+    # Envoi de la demande de création de l'ordre de vente
     sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
     print("Sell order response:", sell_response)
 ```
