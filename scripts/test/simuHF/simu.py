@@ -36,7 +36,7 @@ import talib
 # fonction colored, change la couleur du text pour les print()
 from termcolor import colored
 # clés API Binance
-API_KEY = "
+API_KEY = ""
 API_SECRET = ""
 # Initialisation du client Binance, instance
 client = Client(API_KEY, API_SECRET)
@@ -117,7 +117,7 @@ def process_message(msg):
                     print(f"[{time.ctime(event_time/1000)}] 🔥VENTE à 💰{price:.6f} , 🪙: {btc_balance:.6f}, 💲 : {usdt_balance:.6f},prix d'achat {last_buy_price:.2f}")
                     current_position = "none"
                 # Achat (si hors position et conditions remplies)⚠️
-                if current_position == "none" and tema20 >= recent_min * 1.00002 and last_data >= mins * 1.00015   and usdt_balance >= 10.00 and price <= last_buy_price * 0.9995 :
+                if current_position == "none" and tema20 >= recent_min * 1.00005 and last_data >= mins * 1.00025   and usdt_balance >= 10.00 and price <= last_buy_price * 0.9995 :
                     if slope is not None and slope > bullish_slope_threshold and tema20 < (tema50 - 0.4):
                         btc_balance = (usdt_balance * 0.99925)  / price  # Achat du maximum possible
                         usdt_balance = 0.000000  # Tout l'USDT est converti en BTC
