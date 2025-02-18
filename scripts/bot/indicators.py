@@ -34,7 +34,7 @@ def compute_slope(data, window=slope_window):
 
 
 def calculate_indicators(df):
-    """Calcule RSI et TEMA."""
+    """Calcule slope et TEMA."""
     df['TEMA20'] = TEMA(df['close'], 20)
     tema_window.append(df['TEMA20'])
     df['TEMA50'] = TEMA(df['close'], 50)
