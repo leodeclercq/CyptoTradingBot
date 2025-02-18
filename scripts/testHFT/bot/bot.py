@@ -18,10 +18,13 @@ import math
 import sqlite3
 import pandas as pd
 
-DB_FILE = "C:\\...\\....db"
+DB_FILE = "C:\\....\\.....db"
 
 API_KEY = ""
 API_SECRET = ""
+# Clés API
+#API_KEY = ""
+#API_SECRET = ""
 client = Client(API_KEY, API_SECRET)
 SYMBOL = "BTCFDUSD"
 INTERVAL = Client.KLINE_INTERVAL_1SECOND
@@ -29,9 +32,8 @@ INTERVAL = Client.KLINE_INTERVAL_1SECOND
 BASE_URL = "https://api.binance.com"
 #BASE_URL = "https://testnet.binance.vision"
 current_position = None  # Peut être "BUY", "SELL" ou None
-last_buy_price = 0 #si vous avez déjà un ordre limit de vente en cours
+last_buy_price = 96300.00 #si vous avez déjà un ordre limit de vente en cours
 order_id = 0
-action ="SELL"
 # Récupérer le temps du serveur Binance
 def get_binance_server_time():
     response = requests.get(BASE_URL + "/api/v3/time")
@@ -125,13 +127,15 @@ print(f"Le prix actuel du BTC en FDUSD est de {price}")
 
 def BUYs():
     global last_buy_price
-    USDT_balance = Decimal(get_USDT_balance() * 0.99925).quantize(Decimal('0.00001'), rounding=ROUND_FLOOR)
+    amount = (get_USDT_balance() - (get_USDT_balance() * 0.00075) - 0.000009)
+    precision = 5
+    amt_str = "{:0.0{}f}".format(amount, precision)
     # Passer un ordre d'achat (market)
     buy_params = {
         "symbol": "BTCFDUSD",
         "side": "BUY",
         "type": "MARKET",
-        "quantity": USDT_balance,
+        "quantity": amt_str,
     }
     buy_response = send_signed_request("POST", "/api/v3/order", buy_params)
     last_buy_price = get_price('BTCFDUSD')
@@ -139,31 +143,36 @@ def BUYs():
     
 
 def SELLs():
-    global last_buy_price, order_id, action
-    btc_balance = Decimal(get_USDT_balance()).quantize(Decimal('0.00001'), rounding=ROUND_FLOOR)
+    c = last_buy_price
+    amount = (get_btc_balance()-0.000009)
+    precision = 5
+    precisions = 2
+    qtt  = c * 1.00175
+    # Formater la quantité à vendre avec la précision correcte
+    amt_str = "{:0.0{}f}".format(amount, precision)
+    print(amt_str)
+    amt_strs = "{:0.0{}f}".format(qtt, precisions)
     # Vérification de la balance avant de passer un ordre
-    if btc_balance <= 0.000001:
-        print("❌ Pas assez de BTC pour vendre.")
+    if amount <= 0:
+        print("❌ Solde insuffisant pour effectuer la vente.")
         return
-    # Passer un ordre de vente (market)
+
+    # Passer un ordre de vente (limit)
     sell_params = {
-        "symbol": "BTCFDUSD",
+        "symbol": "BTCFDUSD",  # Utilisation de la paire BTCFDUSD
         "side": "SELL",
         "type": "LIMIT",
-        "quantity": btc_balance,
-        "price": round(last_buy_price * 1.00175, 2),  # Exemple: vente à 1% en dessous du prix actuel
+        "quantity": amt_str,
+        "price": amt_strs,  # Exemple : vente à 0.175% au-dessus du prix actuel
         "timeInForce": "GTC"  # Ordre valide jusqu'à annulation
     }
+
+    # Envoi de la demande de création de l'ordre de vente
     sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
-    if sell_response and "orderId" in sell_response:
-        order_id = sell_response["orderId"]
-        print(f"📌 Ordre LIMIT SELL {order_id} placé à {sell_params['price']} FDUSD")
-        action = "SELL"
-    else:
-        print("❌ Échec de la création de l'ordre SELL.")
+    print("Sell order response:", sell_response)
+
     
 def check_order_status(df):
-    global action
     global order_id
     """
     Récupère la liste des ordres ouverts pour un symbole donné.
@@ -187,7 +196,8 @@ def check_order_status(df):
                 elif  order['status'] and order['status'] == "FILLED":
                     print(f"✅ Ordre exécuté à {order['price']}, déclenchement de la vente.")
     else:
-        print("⚠️ Erreur lors de la récupération des ordres ouverts.")
+        print("⚠️ analyse d'achat...")
+        check_signal(df, execute_trade)
 # Afficher uniquement les balances non nulles
         
 def Get_balance_utile():
@@ -245,6 +255,8 @@ def get_historical_data():
 
 
 def execute_trade(action, data):
+    balance_usdt = get_USDT_balance()
+    balance_btc = get_btc_balance()
     # Appel de la fonction selon l'action
     if action == "BUY" and balance_usdt >= 8.000001:
         BUYs()
@@ -257,14 +269,17 @@ def execute_trade(action, data):
               f"📈 *pente* : {data['slope']:.2f}\n" \
               f"📊 *TEMA20* : {data['TEMA20']:.2f}\n" \
               f"📊 *TEMA50* : {data['TEMA50']:.2f}\n" \
-              f"💲 *FAUX Solde FDUSD* : {get_USDT_balance()}\n"  \
-              f"🪙 *FAUX Solde BTC* : {get_btc_balance()}"
+              f"💲 *FAUX Solde FDUSD* : {balance_usdt}\n"  \
+              f"🪙 *FAUX Solde BTC* : {balance_btc}"
     
         print(message)  # Affichage en console
         send_telegram_message(message)  # 🔥 Envoi sur Telegram
         SELLs()
-
+    else:
+        SELLs()
 def run_bot():
+    print(get_USDT_balance)
+    print(get_btc_balance)
     """Boucle principale du bot, détecte les signaux UNIQUEMENT en live."""
     init_db()
     # Charger l'historique sans signal
