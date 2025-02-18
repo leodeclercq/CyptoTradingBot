@@ -18,10 +18,11 @@ import math
 import sqlite3
 import pandas as pd
 
-DB_FILE = ""
+DB_FILE = "C:\\zarov\\trading_data.db"
 
 API_KEY = ""
 API_SECRET = ""
+
 client = Client(API_KEY, API_SECRET)
 SYMBOL = "BTCFDUSD"
 INTERVAL = Client.KLINE_INTERVAL_1SECOND
@@ -119,13 +120,14 @@ price = get_price("BTCFDUSD")
 
 print(f"Le prix actuel du BTC en FDUSD est de {price}")
 
-last_buy_price = get_price("BTCFDUSD")
+last_buy_price = 97000
 def BUYs():
     global last_buy_price
     price = get_price("BTCFDUSD")
-    if price < (last_buy_price* 0.99825):
-        amount = (get_USDT_balance() - (get_USDT_balance() * 0.00075) - 0.00009)
-        precision = 4
+    if price < (last_buy_price* 0.99955):
+        #amount = ((get_USDT_balance() - (get_USDT_balance() * 0.00075)) / price) - 0.000005
+        amount = 0.00008
+        precision = 5
         amt_str = "{:0.0{}f}".format(amount, precision)
         # Passer un ordre d'achat (market)
         buy_params = {
@@ -135,7 +137,7 @@ def BUYs():
             "quantity": amt_str,
         }
         buy_response = send_signed_request("POST", "/api/v3/order", buy_params)
-        last_buy_price = get_price('BTCFDUSD')
+        last_buy_price = price
         print("Buy order response:", buy_response)
     else:
         return
@@ -144,10 +146,11 @@ def BUYs():
 def SELLs():
     global last_buy_price
     c = last_buy_price
-    amount = (get_btc_balance()-0.000009)
+    #amount = (get_btc_balance()-0.000009)
+    amount = 0.00008
     precision = 5
     precisions = 2
-    qtt  = c * 1.00175
+    qtt  = c * 1.00105
     # Formater la quantité à vendre avec la précision correcte
     amt_str = "{:0.0{}f}".format(amount, precision)
     print(amt_str)
@@ -168,7 +171,7 @@ def SELLs():
     }
 
     # Envoi de la demande de création de l'ordre de vente
-    last_buy_price = qtt
+    last_buy_price = amt_strs
     sell_response = send_signed_request("POST", "/api/v3/order", sell_params)
     print("Sell order response:", sell_response)
 
