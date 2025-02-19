@@ -1,95 +1,65 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import sqlite3
+import numpy as np
 import pandas as pd
-from binance.client import Client
-from database import init_db, save_candle
-from indicators import calculate_indicators
-from strategy import check_signal
-from telegram_bot import send_telegram_message  # 🔥 Import du module Telegram
-import hmac
-from datetime import datetime, timedelta
-import time
-import hashlib
-import requests
-from urllib.parse import urlencode
-from decimal import Decimal, ROUND_FLOOR
-import math
+import matplotlib.pyplot as plt
 
+# 🔗 Connexion à la base SQLite et récupération des données
+conn = sqlite3.connect("C:\\zarov\\trading_data.db")  # Remplace par ton fichier
+query = "SELECT time, close FROM market_data"
+df = pd.read_sql_query(query, conn)
+conn.close()
 
-DB_FILE = "C:\\zarov\\trading_data.db"
+# 🕒 Conversion de la colonne time en datetime
+df["time"] = pd.to_datetime(df["time"])
 
-API_KEY = ""
-API_SECRET = ""
+# 🔍 Garder les données des dernières 24 heures (ici, on suppose que les données sont enregistrées chaque seconde)
+df = df.tail(60*50)
 
-client = Client(API_KEY, API_SECRET)
-SYMBOL = "BTCFDUSD"
-INTERVAL = Client.KLINE_INTERVAL_1SECOND
+# 📊 Affichage des prix de clôture sur les 24 dernières heures
+fig, ax1 = plt.subplots(figsize=(12, 6))
+ax1.plot(df["time"], df["close"], label="Prix de clôture", color="black", linewidth=1.5)
+ax1.set_ylabel("Prix")
+ax1.set_title("Prix sur les dernières 24h")
+ax1.legend()
+ax1.grid()
+plt.xticks(rotation=45)
+plt.show()
 
-# URL Binance
-BASE_URL = "https://api.binance.com"
+# 📈 Calcul des rendements logarithmiques
+# On prend le logarithme des prix et on calcule la différence entre chaque seconde
+log_returns = np.diff(np.log(df["close"]))
+mu_sec = 0.00000033                     # Dérive par seconde
+sigma_sec = 0.0001         # Volatilité par seconde
 
+# Affichage des paramètres sur 24h pour information
+drift_24h = mu_sec * 60*50
+volatility_24h = sigma_sec * np.sqrt(60*50)
+print(f"Dérive par seconde : {mu_sec:.8f}")
+print(f"Dérive sur 24h     : {drift_24h:.4f}")
+print(f"Volatilité par sec : {sigma_sec:.8f}")
+print(f"Volatilité sur 24h : {volatility_24h:.4f}")
 
+# 🎲 Simulation du modèle GBM pour les 10 prochaines minutes
+T = 5 * 60       # Durée de la simulation : 10 minutes en secondes
+dt = 1            # Pas de temps : 1 seconde
+N = int(T / dt)   # Nombre d'étapes
+t = np.linspace(0, T, N + 1)
 
-    
-"""Vérifie si les données historiques existent déjà, sinon les récupère depuis Binance."""
-print("🔄 Vérification des données historiques...")
+# Condition initiale : dernier prix observé
+S0 = df["close"].iloc[-1]
+np.random.seed(42)
+# Simulation vectorisée du GBM
+# On utilise la formule : S(t+dt) = S(t) * exp((mu_sec - 0.5 * sigma_sec^2) * dt + sigma_sec * sqrt(dt) * Z)
+increments = (mu_sec - 0.5 * sigma_sec**2) * dt + sigma_sec * np.sqrt(dt) * np.random.normal(size=N)
+log_S = np.log(S0) + np.concatenate(([0], np.cumsum(increments)))
+S = np.exp(log_S)
 
-# Connexion à la base de données
-with sqlite3.connect(DB_FILE) as conn:
-    cursor = conn.cursor()
-
-    # Vérifier si la table 'market_data' existe et contient des données
-    cursor.execute("SELECT COUNT(*) FROM market_data")
-    count = cursor.fetchone()[0]
-    
-    if count == 0:
-        print("📚 Données historiques trouvées dans la base de données. Chargement...")
-        # Charger les données existantes
-        df = pd.read_sql_query("SELECT * FROM market_data", conn)
-        df['time'] = pd.to_datetime(df['time']).astype(str)
-    else:
-        print("⚠️ Aucune donnée historique trouvée. Récupération des données depuis Binance...")
-        # Récupérer les données historiques depuis Binance si elles n'existent pas
-        # Calcul du timestamp de la dernière heure
-        end_time = int(time.time() * 1000)  # Timestamp actuel en ms
-        start_time = end_time - (24* 60 * 60 * 1000)  # 1 heure en arrière
-        klines = client.get_historical_klines(SYMBOL, INTERVAL, start_time)
-        df = pd.DataFrame(klines, columns=['time', 'open', 'high', 'low', 'close', 'volume', 'close_time',
-                                        'quote_asset_volume', 'num_trades', 'taker_buy_base', 'taker_buy_quote', 'ignore'])
-        
-        df = df[['time', 'open', 'high', 'low', 'close']].astype(float)
-        df['time'] = pd.to_datetime(df['time'], unit='ms').astype(str)
-
-        # Sauvegarder les nouvelles bougies dans la table 'market_data'
-        for _, row in df.iterrows():
-            save_candle(tuple(row))  # Sauvegarde dans la base
-
-        print("✅ Historique récupéré et sauvegardé dans la base de données.")
-
-            
-# 🔹 2. Paramètres de simulation
-T = 60  # Simulation sur 30 jours
-N = 1000  # Nombre de pas de temps
-dt = T / N  # Discrétisation du temps
-mu = df["close"].pct_change().mean() * 3600  # Rendement moyen annualisé
-sigma = df["close"].pct_change().std() * np.sqrt(3600)  # Volatilité annualisée
-
-# Génération du mouvement brownien
-dW = np.sqrt(dt) * np.random.randn(N)  # Incréments gaussiens
-W = np.cumsum(dW)  # Somme cumulative
-time = np.linspace(0, T, N)  # Echelle de temps 
-
-S0 = df['close'].iloc[-1]  # Dernier prix connu
-# Processus de GBM : S(t) = S0 * exp((mu - 0.5 * sigma²) * t + sigma * W_t)
-S = S0 * np.exp((mu - 0.5 * sigma**2) * time + sigma * W)
-
-# Tracé
+# 📉 Affichage de la trajectoire simulée
 plt.figure(figsize=(10, 5))
-plt.plot(np.linspace(0, T, N), W, label="Mouvement brownien Simulation BTC (GBM)")
-plt.axhline(S0, color="r", linestyle="--", label="Prix actuel")
-plt.xlabel("Temps")
-plt.ylabel("W(t) Prix du BTC (USD)")
-plt.title("Simulation d’un mouvement brownien")
+plt.plot(t, S, label="Prix simulé (GBM)", color="blue")
+plt.xlabel("Temps (secondes)")
+plt.ylabel("Prix")
+plt.title("Simulation GBM sur les 10 prochaines minutes")
 plt.legend()
+plt.grid()
 plt.show()
