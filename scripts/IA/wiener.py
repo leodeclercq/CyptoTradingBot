@@ -1,3 +1,6 @@
+# ce script est basé sur le DELTA 17-18 fevrier 2025 entre 22H45 de ces 2 jours, 24H, permet d'obtenir une moyenne grossière de la variation futur
+# il faut un rapport de delta time prévision et de delta time de données initiales de 50-100 fois. 
+# donc pour prévoir 1 s il faut entre 50-100 s
 import sqlite3
 import numpy as np
 import pandas as pd
